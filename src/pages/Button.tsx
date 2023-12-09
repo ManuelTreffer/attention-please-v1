@@ -14,30 +14,52 @@ import {
 } from '@ionic/react';
 import DisplayUsername from '../components/DisplayUsername';
 import './Button.css';
-import { database } from '../database/firebase';
+import { database, getCurrentUserByDeviceId, increaseAttentionCount } from '../database/firebase';
 import { ref, set, child, get, getDatabase } from "firebase/database";
+import { Device } from '@capacitor/device';
+import { useHistory } from 'react-router-dom';
 
+interface User {
+  username: string;
+  friends: any;
+}
 
 const Button: React.FC = () => {
   const [showToast, setShowToast] = useState(false);
   //const username = "Hier wird ein Username platziert"
-  const [username, setUsername] = useState('');
+  const [user, setUser] = useState(null);
+  const history = useHistory();
 
-  const handleButtonClick = () => {
+  const handleAttentionButtonClick = () => {
+    increaseAttentionCounts();
     setShowToast(true);
   };
 
-  useEffect(() => {
-    const dbRef = ref(database);
-    get(child(dbRef, 'users')).then((snapshot) => {
-      const userData = snapshot.val();
-      
-      const first_key = Object.keys(userData)[0];
-      //console.log(first_key)
-      setUsername(first_key);
-    });
-  }, [username]);
+  const handleFriendsButtonClick = () => {
+    history.push('/contact');
+  };
 
+  const retrieveUser = async () => {
+    const device = await Device.getId();
+    const user = await getCurrentUserByDeviceId(device.identifier);
+    if (user) {
+      setUser(user);
+    }
+  };
+
+  const increaseAttentionCounts = async () => {
+    const device = await Device.getId();
+    if (user && user.friends) {
+      Object.keys(user.friends).forEach((friendId) => {
+        console.log(device.identifier, friendId)
+        increaseAttentionCount(device.identifier, friendId);
+      });
+    }
+  }
+
+  useEffect(() => {
+    retrieveUser();
+  }, []);
   return (
     <IonPage>
       <IonHeader>
@@ -49,13 +71,20 @@ const Button: React.FC = () => {
         <IonGrid>
           <IonRow className='ion-jsutify-content-center ion-align-items-center'>
             <IonCol className="username">
-              <DisplayUsername username={username} />
+              <DisplayUsername username={user ? user.username : ""} />
             </IonCol>
           </IonRow>
           <IonRow className="ion-justify-content-center ion-align-items-center">
             <IonCol size="auto" className='center'>
-              <IonButton className="attention-button" shape="round" onClick={handleButtonClick}>
+              <IonButton className="attention-button" shape="round" onClick={handleAttentionButtonClick}>
                 ATTENTION
+              </IonButton>
+            </IonCol>
+          </IonRow>
+          <IonRow>
+            <IonCol className="ion-text-end">
+              <IonButton className="friends-button" onClick={handleFriendsButtonClick}>
+                Friends
               </IonButton>
             </IonCol>
           </IonRow>
