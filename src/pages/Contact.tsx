@@ -13,35 +13,41 @@ import {
   IonToast,
   IonList,
   IonItem,
-  IonLabel
+  IonLabel,
+  IonInput
 } from '@ionic/react';
 import DisplayUsername from '../components/DisplayUsername';
 import './Button.css';
 import { database } from '../database/firebase';
 import { ref, set, child, get, getDatabase } from "firebase/database";
-import { getFriendsList } from '../database/firebase';
+import { getFriendsList, addFriend, getCurrentUserByDeviceId } from '../database/firebase';
+import { Device } from '@capacitor/device';
 
 
 const Contact: React.FC = () => {
   const [showToast, setShowToast] = useState(false);
   const [userId, setUserId] = useState<string>('');
   const [friendsList, setFriendsList] = useState<any[]>([]);
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [friendName, setFriendName] = useState<string>('');
+  const [user, setUser] = useState(null);
 
   const handleButtonClick = () => {
     setShowToast(true);
   };
 
-
   useEffect(() => {
-    setUserId('189ab5ea-c0ca-4364-ac99-68a882e8bfec');
-
-    if (userId){
-        getFriends();
-    }
+    retrieveUser();
   }, [userId]);
   
+  const retrieveUser = async () => {
+    const device = await Device.getId();
+    const user = await getCurrentUserByDeviceId(device.identifier);
+    if (user) {
+      setUserId(device.identifier);
+      getFriends();
+    }
+  };
+
   const getFriends = async () => {
     try {
         const friends = await getFriendsList(userId);
@@ -55,9 +61,17 @@ const Contact: React.FC = () => {
     }
   };
 
-  const addFriendHandler = async (friendId: string) => {
-    // await addFriendHandler(userId, friendId);
-    // getFriends();
+  const searchUsers = async () => {
+    try {
+       // const results = await searchUsersInDatabase(searchTerm);
+        //setSearchResults(results);
+    } catch (error) {
+        console.error('Fehler beim Suchen von Benutzern:', error);
+      }
+  };
+
+  const addFriendHandler = async () => {
+    addFriend(userId, friendName);
   }
 
   return (
@@ -76,7 +90,7 @@ const Contact: React.FC = () => {
             </IonCol>
           </IonRow>
           <IonRow className="ion-justify-content-center ion-align-items-center">
-            <IonCol size="auto" className='center'>
+            <IonCol size="auto" className="friend-list">
               <IonList>
                 {friendsList.map((friend, index) => (
                     <IonItem key={index}>
@@ -85,6 +99,14 @@ const Contact: React.FC = () => {
                     </IonItem>
                 ))}
               </IonList>
+            </IonCol>
+          </IonRow>
+          <IonRow className="ion-justify-content-center ion-align-items-center">
+            <IonCol size="auto" className='center'>
+              <IonItem>
+                <IonInput placeholder="Enter a name" value={friendName} onIonChange={e => setFriendName(e.detail.value)}></IonInput>
+                <IonButton onClick={addFriendHandler}>Add</IonButton>
+              </IonItem>
             </IonCol>
           </IonRow>
         </IonGrid>
