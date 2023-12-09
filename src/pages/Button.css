@@ -3,9 +3,23 @@ ion-content {
     display: flex;
     justify-content: center;
     align-items: center;
-  }
+    height: 100vh; /* Setzt die Höhe des ion-content auf 100% der Bildschirmhöhe */
+}
   
-  ion-button {
-    border-radius: 50px; /* Setze den Radius entsprechend, um den Button rund zu machen */
-  }
-  
+ion-button {
+    width: 100px; /* Setzt die Breite des Buttons nach Bedarf */
+    height: 100px; /* Setzt die Höhe des Buttons nach Bedarf */
+    border-radius: 50%; /* Setzt den Radius auf 50%, um den Button komplett rund zu machen */
+    margin: 0 auto; /* Zentriert den Button horizontal */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 80vh; /* Subtract the height of the register button */
+}

@@ -32,9 +32,9 @@ const Button: React.FC = () => {
       <IonContent className="ion-padding">
         <IonGrid>
           <IonRow className="ion-justify-content-center ion-align-items-center">
-            <IonCol size="auto">
-              <IonButton shape="round" onClick={handleButtonClick}>
-                ATTENTION, PLEASE!
+            <IonCol size="auto" className='center'>
+              <IonButton shape="round" onClick={handleButtonClick} className='ion-button'>
+                ATTENTION
               </IonButton>
             </IonCol>
           </IonRow>
