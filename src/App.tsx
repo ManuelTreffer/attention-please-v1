@@ -59,6 +59,9 @@ const App: React.FC = () => {
         <Route exact path="/contact">
           <Contact />
         </Route>
+        <Route exact path="/register">
+          <Register />
+        </Route>
       </IonRouterOutlet>
     </IonReactRouter>
   </IonApp>
