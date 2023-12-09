@@ -1,0 +1,11 @@
+/* Button.css */
+ion-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  ion-button {
+    border-radius: 50px; /* Setze den Radius entsprechend, um den Button rund zu machen */
+  }
+  
