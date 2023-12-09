@@ -6,7 +6,7 @@ ion-content {
     height: 100vh; /* Setzt die Höhe des ion-content auf 100% der Bildschirmhöhe */
 }
   
-ion-button {
+.attention-button {
     width: 100px; /* Setzt die Breite des Buttons nach Bedarf */
     height: 100px; /* Setzt die Höhe des Buttons nach Bedarf */
     border-radius: 50%; /* Setzt den Radius auf 50%, um den Button komplett rund zu machen */

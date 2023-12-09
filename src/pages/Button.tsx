@@ -40,7 +40,7 @@ const Button: React.FC = () => {
           </IonRow>
           <IonRow className="ion-justify-content-center ion-align-items-center">
             <IonCol size="auto" className='center'>
-              <IonButton shape="round" onClick={handleButtonClick} className='ion-button'>
+              <IonButton className="attention-button" shape="round" onClick={handleButtonClick}>
                 ATTENTION
               </IonButton>
             </IonCol>
