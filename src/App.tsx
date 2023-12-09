@@ -7,6 +7,7 @@ import { database, getCurrentUserByDeviceId } from "./database/firebase"
 
 import Home from './pages/Home';
 import Button from './pages/Button';
+import Contact from './pages/Contact';
 import Register from './pages/Register';
 
 
@@ -55,8 +56,8 @@ const App: React.FC = () => {
         <Route exact path="/button">
           <Button />
         </Route>
-        <Route exact path="/register">
-          <Register />
+        <Route exact path="/contact">
+          <Contact />
         </Route>
       </IonRouterOutlet>
     </IonReactRouter>
