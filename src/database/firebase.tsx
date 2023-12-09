@@ -2,12 +2,16 @@
 import { firebaseConfig } from "./firebaseConfig";
 import { initializeApp } from "firebase/app";
 import { getDatabase, ref, get, set, DataSnapshot } from "firebase/database";
+import { getAnalytics } from "firebase/analytics";
+import { getMessaging } from "firebase/messaging";
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig.firebase);
 
 // Initialize Realtime Database and get a reference to the service
 export const database = getDatabase(app);
+export const analytics =  getAnalytics(app);
+export const messaging = getMessaging(app);
 
 export const getCurrentUserByDeviceId = async (deviceId: string) => {
   const userRef = ref(database, `users/${deviceId}`);
@@ -50,10 +54,3 @@ export const getFriendsList = async (userId: string): Promise<any[]> => {
     return [];
   }
 };
-
-//export const searchUsersInDatabase = async (searchTerm: string): Promise<any[]> => {
-//    try{
-//        const userFriendsRef = ref(database, `users`);
-//        const snapshot = await get(userFriendsRef);
-//    }
-//}
