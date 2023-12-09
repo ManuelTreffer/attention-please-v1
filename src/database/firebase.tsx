@@ -31,3 +31,10 @@ export const getFriendsList = async (userId: string): Promise<any[]> => {
     return [];
   }
 };
+
+//export const searchUsersInDatabase = async (searchTerm: string): Promise<any[]> => {
+//    try{
+//        const userFriendsRef = ref(database, `users`);
+//        const snapshot = await get(userFriendsRef);
+//    }
+//}

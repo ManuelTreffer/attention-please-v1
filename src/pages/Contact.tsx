@@ -24,9 +24,10 @@ import { getFriendsList } from '../database/firebase';
 
 const Contact: React.FC = () => {
   const [showToast, setShowToast] = useState(false);
-  //const username = "Hier wird ein Username platziert"
   const [userId, setUserId] = useState<string>('');
   const [friendsList, setFriendsList] = useState<any[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
 
   const handleButtonClick = () => {
     setShowToast(true);
@@ -52,6 +53,20 @@ const Contact: React.FC = () => {
     }
   };
 
+  const searchUsers = async () => {
+    try {
+       // const results = await searchUsersInDatabase(searchTerm);
+        //setSearchResults(results);
+    } catch (error) {
+        console.error('Fehler beim Suchen von Benutzern:', error);
+      }
+  };
+
+  const addFriendHandler = async (friendId: string) => {
+    // await addFriendHandler(userId, friendId);
+    // getFriends();
+  }
+
   return (
     <IonPage>
       <IonHeader>
@@ -62,6 +77,7 @@ const Contact: React.FC = () => {
       <IonContent className="ion-padding">
         <IonGrid>
           <IonRow className='ion-jsutify-content-center ion-align-items-center'>
+            <DisplayUsername username={userId} />
             <IonCol className="username">
               Deine Kontakte
             </IonCol>
