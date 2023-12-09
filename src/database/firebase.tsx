@@ -1,7 +1,7 @@
 // src/firebase.ts
 import { firebaseConfig } from "./firebaseConfig";
 import { initializeApp } from "firebase/app";
-import { getDatabase, ref, get, set, DataSnapshot } from "firebase/database";
+import { getDatabase, ref, get, set, DataSnapshot, orderByChild, query, equalTo } from "firebase/database";
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig.firebase);
@@ -51,9 +51,39 @@ export const getFriendsList = async (userId: string): Promise<any[]> => {
   }
 };
 
-//export const searchUsersInDatabase = async (searchTerm: string): Promise<any[]> => {
-//    try{
-//        const userFriendsRef = ref(database, `users`);
-//        const snapshot = await get(userFriendsRef);
-//    }
-//}
+export const addFriend = async (userId: string, username: string) => {
+    console.log("add Friend: ", userId, username)
+    const userFriendsRef = ref(database, `users`);
+
+    const filteredFriendsRef = query(userFriendsRef, orderByChild('username'));
+    const filteredFriendsQuery = query(filteredFriendsRef, equalTo(username));
+    const snapshot = await get(filteredFriendsQuery);
+
+    if (snapshot.exists()) {
+        const user = snapshot.val();
+        const friendId = Object.keys(user)[0];
+        console.log(friendId)
+        addFriendById(friendId, userId);
+        addFriendById(userId, friendId);
+    }
+}
+
+export const addFriendById = async (userId: string, friendId: string) => {
+    const friendRef = ref(database, `users/${userId}/friends`);
+    // set the attentionCount of friendRef += 1
+    const snapshot = await get(friendRef);
+    if (snapshot.exists()) {
+        const currentUser = snapshot.val();
+        console.log(currentUser);
+        await set(friendRef, { [friendId]: { attentionCount: 0 }, ...snapshot.val() });
+    } else {
+        const friendsRef = ref(database, `users/${userId}`);
+        const friendsSnapshot = await get(friendsRef);
+        if (friendsSnapshot.exists()) {
+            const currentUser = friendsSnapshot.val();
+            console.log("currentuser:", currentUser)
+            await set(friendsRef, {friends: { [friendId]: { attentionCount: 0 }, username: currentUser.username}});
+        }
+        
+    }
+}
