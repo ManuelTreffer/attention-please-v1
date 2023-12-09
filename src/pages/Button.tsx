@@ -12,11 +12,13 @@ import {
   IonCol,
   IonToast
 } from '@ionic/react';
-import ExploreContainer from '../components/ExploreContainer';
+import DisplayUsername from '../components/DisplayUsername';
 import './Button.css';
+
 
 const Button: React.FC = () => {
   const [showToast, setShowToast] = useState(false);
+  const username = "Hier wird ein Username platziert"
 
   const handleButtonClick = () => {
     setShowToast(true);
@@ -31,6 +33,11 @@ const Button: React.FC = () => {
       </IonHeader>
       <IonContent className="ion-padding">
         <IonGrid>
+          <IonRow className='ion-jsutify-content-center ion-align-items-center'>
+            <IonCol className="username">
+              <DisplayUsername username={username} />
+            </IonCol>
+          </IonRow>
           <IonRow className="ion-justify-content-center ion-align-items-center">
             <IonCol size="auto" className='center'>
               <IonButton shape="round" onClick={handleButtonClick} className='ion-button'>
