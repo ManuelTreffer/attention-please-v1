@@ -47,19 +47,12 @@ const Contact: React.FC = () => {
         const friends = await getFriendsList(userId);
         console.log("Friends")
         console.log(friends);
-        setFriendsList(Object.entries(friends[0]).map(([key, value]) => ({key, ...value})));
+        setFriendsList(Object.entries(friends[0]).map(([key, value]) => ({
+            key,
+            attentionCount: value?.attentionCount || 0, })));
     } catch (error) {
         console.error("Fehler beim Laden der Freundesliste: ", error);
     }
-  };
-
-  const searchUsers = async () => {
-    try {
-       // const results = await searchUsersInDatabase(searchTerm);
-        //setSearchResults(results);
-    } catch (error) {
-        console.error('Fehler beim Suchen von Benutzern:', error);
-      }
   };
 
   const addFriendHandler = async (friendId: string) => {
