@@ -1,5 +1,5 @@
 // Button.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   IonContent,
   IonHeader,
@@ -14,15 +14,29 @@ import {
 } from '@ionic/react';
 import DisplayUsername from '../components/DisplayUsername';
 import './Button.css';
+import { database } from '../database/firebase';
+import { ref, set, child, get, getDatabase } from "firebase/database";
 
 
 const Button: React.FC = () => {
   const [showToast, setShowToast] = useState(false);
-  const username = "Hier wird ein Username platziert"
+  //const username = "Hier wird ein Username platziert"
+  const [username, setUsername] = useState('');
 
   const handleButtonClick = () => {
     setShowToast(true);
   };
+
+  useEffect(() => {
+    const dbRef = ref(database);
+    get(child(dbRef, 'users')).then((snapshot) => {
+      const userData = snapshot.val();
+      
+      const first_key = Object.keys(userData)[0];
+      //console.log(first_key)
+      setUsername(first_key);
+    });
+  }, [username]);
 
   return (
     <IonPage>
