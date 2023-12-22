@@ -11,7 +11,7 @@ const app = initializeApp(firebaseConfig.firebase);
 // Initialize Realtime Database and get a reference to the service
 export const database = getDatabase(app);
 export const analytics =  getAnalytics(app);
-export const messaging = getMessaging(app);
+//export const messaging = getMessaging(app);
 
 export const getCurrentUserByDeviceId = async (deviceId: string) => {
   const userRef = ref(database, `users/${deviceId}`);
@@ -66,6 +66,32 @@ export const getFriendsList = async (userId: string): Promise<any[]> => {
   }
 };
 
+export const getFriendsListFromIds = async (friendIds): Promise<any[]> => {
+  try {
+    if (!friendIds) {
+      return [];
+    }
+
+    // Fetch usernames of each friend
+    const promises = Object.keys(friendIds).map(async (friendId) => {
+      const friendRef = ref(database, `users/${friendId}`);
+      const friendSnapshot = await get(friendRef);
+      const friendData = friendSnapshot.val();
+
+      return {
+        id: friendId,
+        username: friendData.username,
+        attentionCount: friendIds[friendId].attentionCount
+      };
+    });
+
+    // Resolve all promises and return friend data
+    return await Promise.all(promises);
+  } catch (error) {
+    console.error('Error fetching friend list:', error);
+    throw error;
+  }
+}
 
 
 export const addFriend = async (userId: string, username: string) => {
@@ -82,6 +108,9 @@ export const addFriend = async (userId: string, username: string) => {
         console.log(friendId)
         await addFriendById(friendId, userId);
         await addFriendById(userId, friendId);
+        return true;
+    } else {
+        return false;
     }
 }
 
@@ -102,3 +131,5 @@ export const addFriendById = async (userId: string, friendId: string) => {
         }
     }
 }
+
+

@@ -14,11 +14,20 @@ import {
   IonFooter,
   IonIcon,
   IonAvatar,
-  IonToast
+  IonToast,
+  IonFabButton,
+  IonBackButton,
+  IonButtons,
+  useIonToast,
+  IonItemSliding,
+  IonItemOptions,
+  IonItemOption
 } from '@ionic/react';
-import { addCircleOutline } from 'ionicons/icons';
+import { addCircleOutline, add, arrowBack, trash, arrowUndo } from 'ionicons/icons';
 import './Contact.css'; // Updated CSS file name
-import { getFriendsList, addFriend, getCurrentUserByDeviceId } from '../database/firebase';
+import { getFriendsList, getFriendsListFromIds, addFriend, getCurrentUserByDeviceId, database } from '../database/firebase';
+import { ref, onValue } from "firebase/database";
+
 import { Device } from '@capacitor/device';
 
 interface User {
@@ -32,7 +41,19 @@ interface Friend {
 }
 
 const Contact: React.FC = () => {
-  const [showToast, setShowToast] = useState(false);
+
+  const [present] = useIonToast();
+
+  const presentToast = (message: string, position: 'top' | 'middle' | 'bottom' = 'top') => {
+    present({
+      message: message,
+      duration: 2000,
+      position: position,
+    });
+  };
+
+  const [showToastSuccess, setShowToastSuccess] = useState(false);
+  const [showToastUserNotExists, setShowToastUserNotExists] = useState(false);
   const [userId, setUserId] = useState<string>('');
   const [friendsList, setFriendsList] = useState<Friend[]>([]);
   const [friendName, setFriendName] = useState<string>('');
@@ -46,6 +67,17 @@ const Contact: React.FC = () => {
         setUser(user);
         setUserId(device.identifier);
         getFriends(device.identifier);
+
+        // Get a reference to the friend's attention count
+        const friendAttentionRef = ref(database, `users/${device.identifier}/friends`);
+
+        // Listen for changes to the attention count
+        onValue(friendAttentionRef, async (snapshot) => {
+          const friendIds = snapshot.val();
+          console.log(`Friends changed`);
+          const friends = await getFriendsListFromIds(friendIds)
+          setFriendsList(friends);
+        });
       }
     };
     retrieveUser();
@@ -62,50 +94,94 @@ const Contact: React.FC = () => {
 
   const addFriendHandler = async () => {
     if (friendName) {
-      addFriend(userId, friendName);
-      setFriendName('');
-      setShowToast(true);
+      let success = await addFriend(userId, friendName);
+      if (success) {
+        //setShowToastSuccess(true);
+        setFriendName(friendName);
+        getFriends(userId);
+        presentToast(`User '${friendName}' added as friend successfully.`)
+      } else {
+        //setShowToastUserNotExists(true);
+        presentToast(`User '${friendName}' does not exist.`, "bottom")
+      }
     }
+  };
+
+  const handleReset = (index, e) => {
+    const updatedFriendsList = [...friendsList];
+    updatedFriendsList[index].attentionCount = 0;
+    setFriendsList(updatedFriendsList);
+    e.close()
+  };
+  
+  const handleDelete = (index, e) => {
+    const updatedFriendsList = [...friendsList];
+    updatedFriendsList.splice(index, 1);
+    setFriendsList(updatedFriendsList);
+    e.close()
   };
 
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar color="primary">
+        <IonToolbar className="toolbar">
+          <IonButtons slot="start">
+            <IonBackButton></IonBackButton>
+          </IonButtons>
           <IonTitle>Kontakte</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent fullscreen className="ion-padding">
+      <IonContent fullscreen className="ion-padding" color="secondary">
         <div className="username-display">
           <IonAvatar className="user-avatar">
             <img src="https://ionicframework.com/docs/img/demos/avatar.svg" alt="User avatar" />
           </IonAvatar>
-          <h2>{user?.username}</h2>
+          <h1>{user?.username}</h1>
         </div>
         <IonList>
           {friendsList.map((friend, index) => (
-            <IonItem key={index}>
-              <IonAvatar slot="start">
-                <img src="https://ionicframework.com/docs/img/demos/avatar.svg" alt="Friend avatar" />
-              </IonAvatar>
-              <IonLabel className="ion-padding-start">{friend.username}</IonLabel>
-              <IonLabel slot="end" className="attention-count">{friend.attentionCount}</IonLabel>
-            </IonItem>
+            <IonItemSliding>
+              <IonItem key={index} color="secondary">
+                <IonAvatar slot="start">
+                  <img src="https://ionicframework.com/docs/img/demos/avatar.svg" alt="Friend avatar" />
+                </IonAvatar>
+                <IonLabel className="ion-padding-start friends-name" >{friend.username}</IonLabel>
+                <IonLabel slot="end" className="label-attention-count">
+                  {friend.attentionCount > 0 && <div className="attention-count">{friend.attentionCount}</div>}    
+                </IonLabel>
+              </IonItem>
+              <IonItemOptions>
+                <IonItemOption onClick={(e) => handleReset(index, e)}>
+                  <IonIcon slot="start" icon={arrowUndo} ></IonIcon>
+                  Reset
+                </IonItemOption>
+                <IonItemOption color="danger" onClick={(e) => handleDelete(index, e)}>
+                  <IonIcon slot="start" icon={trash}></IonIcon>
+                  Delete
+                  </IonItemOption>
+              </IonItemOptions>
+            </IonItemSliding>
           ))}
         </IonList>
       </IonContent>
-      <IonFooter>
-        <IonItem lines="none">
+      <IonFooter className='footer'>
+        <IonItem className='footer-item' lines="none">
           <IonInput className="input-friend-name" placeholder="user_456" value={friendName} onIonChange={e => setFriendName(e.detail.value)} />
-          <IonButton fill="clear" onClick={addFriendHandler}>
-            <IonIcon slot="icon-only" icon={addCircleOutline} />
+          <IonButton className='add-button' onClick={addFriendHandler} size='default'>
+            <IonIcon slot="icon-only" icon={add}/>
           </IonButton>
         </IonItem>
       </IonFooter>
       <IonToast
-        isOpen={showToast}
-        onDidDismiss={() => setShowToast(false)}
-        message="Friend added successfully."
+        isOpen={showToastUserNotExists}
+        onDidDismiss={() => setShowToastUserNotExists(false)}
+        message={`User '${friendName}' does not exist.`}
+        duration={2000}
+      />
+      <IonToast
+        isOpen={showToastSuccess}
+        onDidDismiss={() => setShowToastSuccess(false)}
+        message={`User '${friendName}' added as friend successfully.`}
         duration={2000}
       />
     </IonPage>

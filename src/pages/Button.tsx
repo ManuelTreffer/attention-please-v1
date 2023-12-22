@@ -18,7 +18,8 @@ import { database, getCurrentUserByDeviceId, increaseAttentionCount } from '../d
 import { ref, set, child, get, getDatabase } from "firebase/database";
 import { Device } from '@capacitor/device';
 import { useHistory } from 'react-router-dom';
-import { getMessaging, getToken } from 'firebase/messaging';
+// import { getMessaging, getToken } from 'firebase/messaging';
+import { PushNotifications } from '@capacitor/push-notifications';
 
 interface User {
   username: string;
@@ -30,8 +31,8 @@ const Button: React.FC = () => {
   //const username = "Hier wird ein Username platziert"
   const [user, setUser] = useState(null);
   const history = useHistory();
-  const messaging = getMessaging();
-  getToken(messaging, {vapidKey: "BHqelZrL4aKgL6_fIGE79hBcpna6n1AzocyI0-VZz0QOULydWbUTiQTQpvCjSltSJBbu_g5mAS_8DKDGqHd7WjI"});
+  //const messaging = getMessaging();
+  //getToken(messaging, {vapidKey: "BHqelZrL4aKgL6_fIGE79hBcpna6n1AzocyI0-VZz0QOULydWbUTiQTQpvCjSltSJBbu_g5mAS_8DKDGqHd7WjI"});
 
   const handleAttentionButtonClick = () => {
     increaseAttentionCounts();
@@ -62,11 +63,11 @@ const Button: React.FC = () => {
 
   const requestPermission: any = () =>{
     console.log('Requesting permission');
-    Notification.requestPermission().then((permission) => {
-      if (permission === 'granted') {
-        console.log('Notification permission granted');
-      }
-    });
+    // Notification.requestPermission().then((permission) => {
+    //   if (permission === 'granted') {
+    //     console.log('Notification permission granted');
+    //   }
+    // });
   };
 
   useEffect(() => {
